@@ -6,7 +6,7 @@
   "types": "index.d.ts",
   "scripts": {
     "test": "jest",
-    "build": "swc src/ --ignore src/**/*.test.ts -d .",
+    "build": "swc src/ -d . --config-file .swcrc",
     "types": "tsc --declaration --emitDeclarationOnly src/index.ts --outDir .",
     "prepublishOnly": "npm run build && npm run types",
     "prettier": "prettier --write \"**/*.{ts,json,md}\"",
