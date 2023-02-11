@@ -23,8 +23,8 @@ export const dereferenceSync = (schema: JSONSchema) => {
 
       if (Array.isArray(current)) {
         // array
-        for (const [index, value] of current.entries()) {
-          current[index] = gather(value, `${path}/${index}`);
+        for (let index = 0; index < current.length; index++) {
+          current[index] = gather(current[index], `${path}/${index}`);
         }
       } else {
         // object
@@ -53,8 +53,8 @@ export const dereferenceSync = (schema: JSONSchema) => {
 
       if (Array.isArray(current)) {
         // array
-        for (const [index, value] of current.entries()) {
-          current[index] = resolve(value, `${path}/${index}`);
+        for (let index = 0; index < current.length; index++) {
+          current[index] = resolve(current[index], `${path}/${index}`);
         }
       } else {
         // object
