@@ -9,7 +9,7 @@
 
 Dereference $ref pointers in JSONSchema or OpenAPI documents.
 
-Zero dependencies. Synchronous core. Handles recursive refs.
+Zero dependencies. Synchronous core. Handles circular refs.
 
 ## Usage
 
