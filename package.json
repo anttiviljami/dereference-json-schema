@@ -1,7 +1,7 @@
 {
   "name": "dereference-json-schema",
   "version": "0.0.1",
-  "description": "Dereference $ref pointers in json schema or openapi documents",
+  "description": "Dereference $ref pointers in JSONSchema or OpenAPI documents.",
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
@@ -15,7 +15,12 @@
     "type": "git",
     "url": "git+https://github.com/anttiviljami/dereference-json-schema.git"
   },
-  "keywords": [],
+  "keywords": [
+    "dereference",
+    "json-schema",
+    "openapi",
+    "swagger"
+  ],
   "author": "Viljami Kuosmanen <viljami@viljami.io>",
   "license": "MIT",
   "bugs": {
