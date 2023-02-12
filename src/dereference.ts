@@ -1,48 +1,19 @@
 import { klona } from './klona';
 import type { DereferencedJSONSchema, JSONSchema } from './types';
 
+const cache = new Map<JSONSchema, DereferencedJSONSchema>();
+
 /**
  * Resolves all $ref pointers in a schema and returns a new schema without any $ref pointers.
  */
 export const dereferenceSync = (schema: JSONSchema) => {
-  const refs = new Map<string, unknown>();
+  if (cache.has(schema)) {
+    return cache.get(schema);
+  }
+
   const visitedNodes = new Set<unknown>();
+  const cloned = klona(schema);
 
-  let cloned = klona(schema);
-
-  // first pass: gather $ref pointers recursively from the schema
-  const gather = (current: unknown, path: string) => {
-    refs.set(path, current);
-
-    if (typeof current === 'object' && current !== null) {
-      // make sure we don't visit the same node twice
-      if (visitedNodes.has(current)) {
-        return current;
-      }
-      visitedNodes.add(current);
-
-      if (Array.isArray(current)) {
-        // array
-        for (let index = 0; index < current.length; index++) {
-          current[index] = gather(current[index], `${path}/${index}`);
-        }
-      } else {
-        // object
-        for (const [key, value] of Object.entries(current)) {
-          // ignore $ref pointers while gathering
-          if (key !== '$ref') {
-            current[key] = gather(value, `${path}/${key}`);
-          }
-        }
-      }
-    }
-
-    return current;
-  };
-  gather(cloned, '#');
-  visitedNodes.clear();
-
-  // second pass: resolve $ref pointers in place
   const resolve = (current: unknown, path: string) => {
     if (typeof current === 'object' && current !== null) {
       // make sure we don't visit the same node twice
@@ -58,12 +29,12 @@ export const dereferenceSync = (schema: JSONSchema) => {
         }
       } else {
         // object
-        for (const [key, value] of Object.entries(current)) {
-          if (key === '$ref' && typeof value === 'string' && refs.has(value)) {
-            return refs.get(value);
-          } else {
-            current[key] = resolve(value, `${path}/${key}`);
-          }
+        if ('$ref' in current && typeof current['$ref'] === 'string') {
+          return resolveRef(cloned, current['$ref']);
+        }
+
+        for (const key in current) {
+          current[key] = resolve(current[key], `${path}/${key}`);
         }
       }
     }
@@ -72,4 +43,21 @@ export const dereferenceSync = (schema: JSONSchema) => {
   };
 
   return resolve(cloned, '#') as DereferencedJSONSchema;
+};
+
+/**
+ * Resolves a $ref pointer in a schema and returns the referenced value.
+ */
+export const resolveRef = (schema: JSONSchema, ref: string): unknown => {
+  const path = ref.split('/').slice(1);
+
+  let current = schema;
+  for (const segment of path) {
+    if (!current || typeof current !== 'object') {
+      // we've reached a dead end
+      return null;
+    }
+    current = current[segment];
+  }
+  return current;
 };
