@@ -20,7 +20,7 @@ describe('dereferenceSync', () => {
     // then
     expect(result).toEqual(schema);
     expect(result).not.toBe(schema);
-    expect(result).not.toContainRefs(schema);
+    expect(result).not.toContainRefs();
   });
 
   it('should dereference simple schema', () => {
@@ -60,7 +60,7 @@ describe('dereferenceSync', () => {
         },
       },
     });
-    expect(result).not.toContainRefs(schema);
+    expect(result).not.toContainRefs();
   });
 
   it('should dereference a schema with deeply nested $refs', () => {
@@ -136,6 +136,7 @@ describe('dereferenceSync', () => {
         },
       },
     });
+    expect(result).not.toContainRefs();
   });
 
   it('should dereference a schema with circular $refs', () => {
@@ -173,7 +174,7 @@ describe('dereferenceSync', () => {
         Person: CircularPerson,
       },
     });
-    expect(result).not.toContainRefs(schema);
+    expect(result).not.toContainRefs();
   });
 
   it('should replace a non-existend ref with null', () => {
@@ -212,13 +213,13 @@ describe('dereferenceSync', () => {
 declare global {
   namespace jest {
     interface Matchers<R> {
-      toContainRefs(expected): CustomMatcherResult;
+      toContainRefs(): CustomMatcherResult;
     }
   }
 }
 
 expect.extend({
-  toContainRefs(received) {
+  toContainRefs(received: unknown) {
     const schemaPrinted = printReceived(received);
 
     const refsFound = schemaPrinted.match(/\$ref/g);
