@@ -57,7 +57,7 @@ export const resolveRef = (schema: JSONSchema, ref: string): unknown => {
       // we've reached a dead end
       return null;
     }
-    current = current[segment];
+    current = current[segment] ?? null;
   }
   return current;
 };
