@@ -175,6 +175,38 @@ describe('dereferenceSync', () => {
     });
     expect(result).not.toContainRefs(schema);
   });
+
+  it('should replace a non-existend ref with null', () => {
+    // given
+    const schema: JSONSchema = {
+      schemas: {
+        Person: {
+          type: 'object',
+          properties: {
+            name: {
+              $ref: '#/schemas/Name',
+            },
+          },
+        },
+      },
+    };
+
+    // when
+    const result = dereferenceSync(schema);
+
+    // then
+    expect(result).toEqual({
+      schemas: {
+        Person: {
+          type: 'object',
+          properties: {
+            name: null,
+          },
+        },
+      },
+    });
+    expect(result).not.toContainRefs()
+  })
 });
 
 declare global {
