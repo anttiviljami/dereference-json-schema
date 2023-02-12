@@ -177,7 +177,7 @@ describe('dereferenceSync', () => {
     expect(result).not.toContainRefs();
   });
 
-  it('should replace a non-existend ref with null', () => {
+  it('should replace a bad ref with null', () => {
     // given
     const schema: JSONSchema = {
       schemas: {
