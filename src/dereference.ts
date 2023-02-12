@@ -1,4 +1,5 @@
 import { klona } from './klona';
+import { resolveRefSync } from './resolveRef';
 import type { DereferencedJSONSchema, JSONSchema } from './types';
 
 const cache = new Map<JSONSchema, DereferencedJSONSchema>();
@@ -30,7 +31,7 @@ export const dereferenceSync = (schema: JSONSchema) => {
       } else {
         // object
         if ('$ref' in current && typeof current['$ref'] === 'string') {
-          return resolveRef(cloned, current['$ref']);
+          return resolveRefSync(cloned, current['$ref']);
         }
 
         for (const key in current) {
@@ -42,22 +43,7 @@ export const dereferenceSync = (schema: JSONSchema) => {
     return current;
   };
 
-  return resolve(cloned, '#') as DereferencedJSONSchema;
-};
-
-/**
- * Resolves a $ref pointer in a schema and returns the referenced value.
- */
-export const resolveRef = (schema: JSONSchema, ref: string): unknown => {
-  const path = ref.split('/').slice(1);
-
-  let current = schema;
-  for (const segment of path) {
-    if (!current || typeof current !== 'object') {
-      // we've reached a dead end
-      return null;
-    }
-    current = current[segment] ?? null;
-  }
-  return current;
+  const result = resolve(cloned, '#') as DereferencedJSONSchema;
+  cache.set(schema, result);
+  return result;
 };

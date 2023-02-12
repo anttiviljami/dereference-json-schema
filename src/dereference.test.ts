@@ -208,6 +208,53 @@ describe('dereferenceSync', () => {
     });
     expect(result).not.toContainRefs();
   });
+
+  it('should cache the dereferenced schema', () => {
+    // given
+    const schema: JSONSchema = {
+      schemas: {
+        Person: {
+          type: 'object',
+          properties: {
+            name: {
+              $ref: '#/schemas/Name',
+            },
+          },
+        },
+        Name: {
+          type: 'string',
+        },
+      },
+    };
+    const result1 = dereferenceSync(schema);
+
+    // when
+
+    // mutate schema
+    // since we are caching the clone, dereferenced schema, this should not affect the result
+    schema.schemas.Person = {
+      type: 'string',
+    };
+    const result2 = dereferenceSync(schema);
+
+    // then
+    expect(result1).toEqual({
+      schemas: {
+        Person: {
+          type: 'object',
+          properties: {
+            name: {
+              type: 'string',
+            },
+          },
+        },
+        Name: {
+          type: 'string',
+        },
+      },
+    });
+    expect(result1).toBe(result2);
+  });
 });
 
 declare global {
