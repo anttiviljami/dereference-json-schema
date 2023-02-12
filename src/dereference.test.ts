@@ -205,8 +205,8 @@ describe('dereferenceSync', () => {
         },
       },
     });
-    expect(result).not.toContainRefs()
-  })
+    expect(result).not.toContainRefs();
+  });
 });
 
 declare global {
