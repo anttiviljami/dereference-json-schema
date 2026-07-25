@@ -1,6 +1,11 @@
 import { JSONSchema } from './types';
 
-const cache = new Map<JSONSchema, Map<string, unknown>>();
+// See the identical WeakMap rationale in dereference.ts. Only the outer map
+// needs to be weak - ref strings aren't valid WeakMap keys, and the inner
+// per-schema Map is only ever reachable through the outer entry, so it's
+// collected along with it once the schema itself is no longer referenced
+// anywhere else.
+const cache = new WeakMap<JSONSchema, Map<string, unknown>>();
 
 /**
  * Resolves a $ref pointer in a schema and returns the referenced value.

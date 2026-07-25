@@ -5,7 +5,7 @@
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
-    "test": "jest",
+    "test": "NODE_OPTIONS=--expose-gc jest",
     "build": "swc src/ -d . --config-file .swcrc",
     "types": "tsc --declaration --outDir . src/index.ts",
     "prepublishOnly": "npm run build && npm run types -- --emitDeclarationOnly",

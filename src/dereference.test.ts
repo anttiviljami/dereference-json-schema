@@ -255,6 +255,46 @@ describe('dereferenceSync', () => {
     });
     expect(result1).toBe(result2);
   });
+
+  it('should allow a schema to be garbage collected once nothing else references it', async () => {
+    if (typeof global.gc !== 'function') {
+      throw new Error('This test must be run with --expose-gc (see the "test" script in package.json)');
+    }
+
+    // given
+    let schema: JSONSchema | undefined = {
+      schemas: {
+        Person: {
+          type: 'object',
+          properties: {
+            name: {
+              $ref: '#/schemas/Name',
+            },
+          },
+        },
+        Name: {
+          type: 'string',
+        },
+      },
+    };
+    const weakRef = new WeakRef(schema);
+    dereferenceSync(schema);
+
+    // when
+    schema = undefined; // drop the only remaining strong reference
+
+    global.gc();
+    // let any pending microtasks release their references before a second,
+    // final collection pass
+    await new Promise((resolve) => setImmediate(resolve));
+    global.gc();
+
+    // then
+    // if the cache were a plain Map keyed by the schema object, this would
+    // still be reachable (and therefore defined) no matter how much we GC,
+    // since the Map itself holds a strong reference to it forever.
+    expect(weakRef.deref()).toBeUndefined();
+  });
 });
 
 declare global {
